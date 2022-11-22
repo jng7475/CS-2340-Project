@@ -11,8 +11,8 @@ random_number:
     	li $v0, 1   #1 print integer
     	syscall
     	
-    	#li $v0, 10
-    	#syscall
+    	li $v0, 10
+    	syscall
     	
 make_move:
 	#prompt for row number
