@@ -3,7 +3,7 @@
 	col_prompt: .asciiz "\nEnter a column number (0-14): "
 	buffer: .space 20
 .text
-#.globl
+.globl random_number
 random_number:
 	li $a1, 15  #max bound 15
     	li $v0, 42  #generate random number.
@@ -13,7 +13,9 @@ random_number:
     	
     	li $v0, 10
     	syscall
-    	
+    	jr $ra
+
+.globl make_move    	
 make_move:
 	#prompt for row number
 	la $a0, row_prompt
