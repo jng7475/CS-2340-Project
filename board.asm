@@ -66,6 +66,7 @@ notValid:
 	li $v0, 4
 	la $a0, occupied
 	syscall
+	beq $s7, 2, computer_turn # if the computer makes an invalid move computer goes again
 	
 	j continue
 	

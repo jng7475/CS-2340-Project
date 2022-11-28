@@ -21,10 +21,9 @@ continue:
 player_turn:
 	jal make_move
 	jal changeBoard
-	#jal print_board
 	li $s7, 2
 	
-	
+.globl computer_turn
 computer_turn:
 	jal random_number
 	jal changeBoard
