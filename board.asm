@@ -179,6 +179,7 @@ loop:
 	
 	add $a1, $a0, $t3	# $a1 now contains address for the correct array element
 	lw $t4, 0($a1)
+	li $t2, 0
 	beq $s7, $t4, increment
 	
 	addi $t7, $t7, 1 #increment loop counter
@@ -199,7 +200,9 @@ win:
 	li $v0, 4
 	syscall
 	
-	jr $ra
+	#terminate program
+	li $v0, 10
+	syscall
 	
 
 
