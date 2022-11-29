@@ -26,6 +26,18 @@ occupied: .asciiz "Illegal Move: Space is Full\nPlease Try Again\n"
 
 .globl changeBoard
 changeBoard:
+	li  $v0, 1           
+	add $a0, $s0, $zero  
+	syscall
+	li $v0, 4
+        la $a0, newLine
+        syscall
+	li  $v0, 1           
+	add $a0, $s1, $zero  
+	syscall
+	li $v0, 4
+        la $a0, newLine
+        syscall
 	#check whose turn
 	#take in new move
 	#assuming $s0 and $s1 contain rowInd and colInd respectively
@@ -37,7 +49,7 @@ changeBoard:
 	mult $s0, $t0 		# rowInd * colSize
 	mflo $t1		# move lo to $t1
 	add $t1, $t1, $s1 	# (rowInd * colSize) + colInd
-	addi $t2, $t2, DATA_SIZE # $t1 = data_size = 4
+	addi $t2, $t2, DATA_SIZE # $t2 = data_size = 4
 	mult $t1, $t2		# (rowInd * colSize + colInd) * dataSize
 	mflo $t3
 	
@@ -58,6 +70,9 @@ isValid:
 	#jr $ra
 #change_to_player:
 	#li $s7, 1
+	
+	### ERROR should be fixed
+	li $t2 0
 	jr $ra
 	
 	
@@ -66,6 +81,8 @@ notValid:
 	li $v0, 4
 	la $a0, occupied
 	syscall
+	### ERROR should be fixed
+	li $t2 0
 	beq $s7, 2, computer_turn # if the computer makes an invalid move computer goes again
 	
 	j continue
