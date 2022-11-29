@@ -161,9 +161,9 @@ checkCols:
 	
 	li $t8, 14	#col size
 	
-	j loop
+	j loop_col
 	
-loop:
+loop_col:
 	beq $t6, 5, win		 #exit if score 5
 	bgt $t7, $t8, exit
 	la $a0, boardArray
@@ -184,12 +184,12 @@ loop:
 	
 	addi $t7, $t7, 1 #increment loop counter
 	li $t6, 0
-	j loop
+	j loop_col
 	
 increment:
 	addi $t7, $t7, 1 #increment loop counter
 	addi $t6, $t6, 1 #increment score sounter
-	j loop
+	j loop_col
 	
 	
 exit:
@@ -203,6 +203,44 @@ win:
 	#terminate program
 	li $v0, 10
 	syscall
+	
+.globl checkRows
+checkRows:
+	#add $t5, $zero, $s0	#current row
+	li $t6, 0	#score counter
+	li $t7, 0	#loop counter
+	
+	li $t8, 14	#col size
+	
+	j loop_row
+	
+loop_row:
+	beq $t6, 5, win		 #exit if score 5
+	bgt $t7, $t8, exit
+	la $a0, boardArray
+	
+	#addr = baseAddr + (rowInd * colSize + colInd) * dataSize
+	lw $t0, size	# $t0 = size
+	mult $s0, $t0 		# rowInd * colSize
+	mflo $t1		# move lo to $t1
+	add $t1, $t1, $t7 	# (rowInd * colSize) + colInd
+	addi $t2, $t2, DATA_SIZE # $t2 = data_size = 4
+	mult $t1, $t2		# (rowInd * colSize + colInd) * dataSize
+	mflo $t3
+	
+	add $a1, $a0, $t3	# $a1 now contains address for the correct array element
+	lw $t4, 0($a1)
+	li $t2, 0
+	beq $s7, $t4, increment_row
+	
+	addi $t7, $t7, 1 #increment loop counter
+	li $t6, 0
+	j loop_row
+	
+increment_row:
+	addi $t7, $t7, 1 #increment loop counter
+	addi $t6, $t6, 1 #increment score sounter
+	j loop_row
 	
 
 

@@ -22,6 +22,7 @@ player_turn:
 	jal make_move
 	jal changeBoard
 	jal checkCols
+	jal checkRows
 	li $s7, 2
 	
 .globl computer_turn
@@ -29,6 +30,7 @@ computer_turn:
 	jal random_number
 	jal changeBoard
 	jal checkCols
+	jal checkRows
 	li $s7, 1
 	jal print_board
 	j continue
