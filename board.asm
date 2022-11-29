@@ -19,6 +19,7 @@ size : 	    .word 15
 newLine: .asciiz "\n"
 space: .asciiz "  "
 occupied: .asciiz "Illegal Move: Space is Full\nPlease Try Again\n"
+you_win: .asciiz "YOU WIN!"
 
 .eqv        DATA_SIZE 4
 
@@ -149,5 +150,56 @@ mod:
         mulo $v0, $v0, $a2
         sub $v0, $a1, $v0
         jr $ra
+        
+        
+#addr = baseAddr + (rowInd * colSize + colInd) * dataSize
+.globl checkCols
+checkCols:
+	#add $t5, $zero, $s0	#current row
+	li $t6, 0	#score counter
+	li $t7, 0	#loop counter
+	
+	li $t8, 14	#col size
+	
+	j loop
+	
+loop:
+	beq $t6, 5, win		 #exit if score 5
+	bgt $t7, $t8, exit
+	la $a0, boardArray
+	
+	#addr = baseAddr + (rowInd * colSize + colInd) * dataSize
+	lw $t0, size	# $t0 = size
+	mult $t7, $t0 		# rowInd * colSize
+	mflo $t1		# move lo to $t1
+	add $t1, $t1, $s1 	# (rowInd * colSize) + colInd
+	addi $t2, $t2, DATA_SIZE # $t2 = data_size = 4
+	mult $t1, $t2		# (rowInd * colSize + colInd) * dataSize
+	mflo $t3
+	
+	add $a1, $a0, $t3	# $a1 now contains address for the correct array element
+	lw $t4, 0($a1)
+	beq $s7, $t4, increment
+	
+	addi $t7, $t7, 1 #increment loop counter
+	li $t6, 0
+	j loop
+	
+increment:
+	addi $t7, $t7, 1 #increment loop counter
+	addi $t6, $t6, 1 #increment score sounter
+	j loop
+	
+	
+exit:
+	jr $ra
+	
+win:
+	la $a0, you_win
+	li $v0, 4
+	syscall
+	
+	jr $ra
+	
 
 
