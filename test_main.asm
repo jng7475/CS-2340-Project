@@ -7,8 +7,13 @@ main:
 	
 	#jal print_board
 	li $s7, 1
+	# move counter
+	li $s6, 0
 .globl continue
-continue:	
+continue:
+	# check for tie
+	beq $s6, 225, game_tied
+			
 	#la $a0, test
 	#li $v0, 4
 	#syscall
@@ -24,6 +29,7 @@ player_turn:
 	jal checkCols
 	jal checkRows
 	jal check_diagonal_backward
+	jal check_diagonal_forward
 	li $s7, 2
 	
 .globl computer_turn
@@ -33,11 +39,12 @@ computer_turn:
 	jal checkCols
 	jal checkRows
 	jal check_diagonal_backward
+	jal check_diagonal_forward
 	li $s7, 1
 	jal print_board
 	j continue
 	
 
-end_program:
+game_tied:
 	li $v0, 10
 	syscall

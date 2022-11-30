@@ -17,9 +17,11 @@ boardArray: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	    
 size : 	    .word 15
 newLine: .asciiz "\n"
+test: .asciiz "test"
 space: .asciiz "  "
 occupied: .asciiz "Illegal Move: Space is Full\nPlease Try Again\n"
 you_win: .asciiz "YOU WIN!"
+you_lost: .asciiz "YOU LOST!"
 
 .eqv        DATA_SIZE 4
 
@@ -30,6 +32,9 @@ changeBoard:
 	#check whose turn
 	#take in new move
 	#assuming $s0 and $s1 contain rowInd and colInd respectively
+	
+	# increment move counter
+	addi $s6, $s6, 1
 	
 	la $a0, boardArray
 	
@@ -183,8 +188,18 @@ increment:
 exit:
 	jr $ra
 	
-win:
+win:	
+	beq $s7, 2, lost
 	la $a0, you_win
+	li $v0, 4
+	syscall
+	
+	#terminate program
+	li $v0, 10
+	syscall
+	
+lost:
+	la $a0, you_lost
 	li $v0, 4
 	syscall
 	
@@ -241,11 +256,11 @@ check_diagonal_backward:
 	j top_half_backward
 	
 bottom_half_backward:
-	# current row * 15 + current column
+	# current  row * 15 + current column
 	li $t7, 15
 	mult $s0, $t7
 	mflo $t7
-	add $t7, $t7, $s1	# t7 - current index
+	add $t7, $t7, $s1	# t7 = current index
 	
 	# start = current - 16 * column
 	li $s3, 16
@@ -258,26 +273,107 @@ bottom_half_backward:
 	j loop_diagonal_backward
 
 top_half_backward:
+	# current row * 15 + current column
+	li $t7, 15
+	mult $s0, $t7
+	mflo $t7
+	add $t7, $t7, $s1	# t7 = current index
 	
+	# start = current - 16 * row
+	li $s3, 16
+	mult $s0, $s3
+	mflo $s3
+	sub $t7, $t7, $s3	# t7 -> starting index
+	
+	li $t6, 0
+	
+	j loop_diagonal_backward
 		
 loop_diagonal_backward:
 	beq $t6, 5, win		 #exit if score 5
 	bgt $t7, 224, exit
-	mul $s4, $t7, 4
+	li $t2, 4
+	mult $t7, $t2
+	mflo $s4
 	add $a1, $a0, $s4
 	
 	lw $t4, 0($a1)
 	li $t2, 0
 	beq $s7, $t4, increment_row_diagonal
+	addi $t7, $t7, 16 #increment loop counter
 	li $t6, 0
 	j loop_diagonal_backward
 	
 increment_row_diagonal:
 	addi $t7, $t7, 16 #increment loop counter
+	
 	addi $t6, $t6, 1 #increment score sounter
 	j loop_diagonal_backward
 	
+.globl check_diagonal_forward
+check_diagonal_forward:
+	la $a0, boardArray
+	li $t8, 14	#col size
+	li $t6, 0	#score counter
+	sub $t5, $s0, $s1	# sum of row and column of chosen coordinate
+	bgt $t5, 0, bottom_half_forward
+	j top_half_forward
 	
+bottom_half_forward:
+	# current row * 15 + current column
+	li $t7, 15
+	mult $s0, $t7
+	mflo $t7
+	add $t7, $t7, $s1	# t7 = current index
+	
+	# start = current - 14 * (14 - column)
+	li $s3, 14
+	sub $s5, $s3, $s1
+	mult $s5, $s3
+	mflo $s3
+	sub $t7, $t7, $s3	# t7 -> starting index
+	
+	li $t6, 0
+	
+	j loop_diagonal_forward
+
+top_half_forward:
+	# current = row * 15 + current column
+	li $t7, 15
+	mult $s0, $t7
+	mflo $t7
+	add $t7, $t7, $s1	# t7 = current index
+	
+	# start = current - 14 * row
+	li $s3, 14
+	mult $s0, $s3
+	mflo $s3
+	sub $t7, $t7, $s3	# t7 -> starting index
+	
+	li $t6, 0
+	
+	j loop_diagonal_forward
+		
+loop_diagonal_forward:
+	beq $t6, 5, win		 #exit if score 5
+	bgt $t7, 224, exit
+	li $t2, 4
+	mult $t7, $t2
+	mflo $s4
+	add $a1, $a0, $s4
+	
+	lw $t4, 0($a1)
+	li $t2, 0
+	beq $s7, $t4, increment_row_diagonal_forward
+	addi $t7, $t7, 14 #increment loop counter
+	li $t6, 0
+	j loop_diagonal_forward
+	
+increment_row_diagonal_forward:
+	addi $t7, $t7, 14 #increment loop counter
+	
+	addi $t6, $t6, 1 #increment score sounter
+	j loop_diagonal_forward
 	
 	
 	
