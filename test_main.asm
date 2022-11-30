@@ -23,6 +23,7 @@ player_turn:
 	jal changeBoard
 	jal checkCols
 	jal checkRows
+	jal check_diagonal_backward
 	li $s7, 2
 	
 .globl computer_turn
@@ -31,6 +32,7 @@ computer_turn:
 	jal changeBoard
 	jal checkCols
 	jal checkRows
+	jal check_diagonal_backward
 	li $s7, 1
 	jal print_board
 	j continue

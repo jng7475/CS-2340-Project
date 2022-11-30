@@ -27,18 +27,6 @@ you_win: .asciiz "YOU WIN!"
 
 .globl changeBoard
 changeBoard:
-	li  $v0, 1           
-	add $a0, $s0, $zero  
-	syscall
-	li $v0, 4
-        la $a0, newLine
-        syscall
-	li  $v0, 1           
-	add $a0, $s1, $zero  
-	syscall
-	li $v0, 4
-        la $a0, newLine
-        syscall
 	#check whose turn
 	#take in new move
 	#assuming $s0 and $s1 contain rowInd and colInd respectively
@@ -101,7 +89,7 @@ print_board:
         # ($t1 is counter and index of array, $t2 is for loop condition, $t3 is actual array shift based on index)
         
         sll $t3, $t9, 2
-        lw $t4, boardArray($t3) # print a zero at board[i]
+        lw $t4, boardArray($t3) # print value at board[i]
         # print each position
         li  $v0, 1           
 	add $a0, $t4, $zero  
@@ -243,4 +231,55 @@ increment_row:
 	j loop_row
 	
 
+.globl check_diagonal_backward
+check_diagonal_backward:
+	la $a0, boardArray
+	li $t8, 14	#col size
+	li $t6, 0	#score counter
+	sub $t5, $s0, $s1	# sum of row and column of chosen coordinate
+	bgt $t5, 0, bottom_half_backward
+	j top_half_backward
+	
+bottom_half_backward:
+	# current row * 15 + current column
+	li $t7, 15
+	mult $s0, $t7
+	mflo $t7
+	add $t7, $t7, $s1	# t7 - current index
+	
+	# start = current - 16 * column
+	li $s3, 16
+	mult $s1, $s3
+	mflo $s3
+	sub $t7, $t7, $s3	# t7 -> starting index
+	
+	li $t6, 0
+	
+	j loop_diagonal_backward
+
+top_half_backward:
+	
+		
+loop_diagonal_backward:
+	beq $t6, 5, win		 #exit if score 5
+	bgt $t7, 224, exit
+	mul $s4, $t7, 4
+	add $a1, $a0, $s4
+	
+	lw $t4, 0($a1)
+	li $t2, 0
+	beq $s7, $t4, increment_row_diagonal
+	li $t6, 0
+	j loop_diagonal_backward
+	
+increment_row_diagonal:
+	addi $t7, $t7, 16 #increment loop counter
+	addi $t6, $t6, 1 #increment score sounter
+	j loop_diagonal_backward
+	
+	
+	
+	
+	
+	
 
