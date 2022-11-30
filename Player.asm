@@ -2,6 +2,7 @@
 	row_prompt: .asciiz "Enter a row number (0-14): "
 	col_prompt: .asciiz "\nEnter a column number (0-14): "
 	buffer: .space 20
+	error_message: .asciiz "Oops! You entered an invalid number. Please try again and enter a number from 0 to 14.\n"
 .text
 .globl random_number
 random_number:
@@ -16,12 +17,6 @@ random_number:
     	syscall
     	
     	move $s1, $a0
-    	
-    	#li $v0, 1   #1 print integer
-    	#syscall
-    	
-    	#li $v0, 10
-    	#syscall
 
     	jr $ra
 
@@ -32,33 +27,32 @@ make_move:
 	li $v0, 4
 	syscall
 	
-	#read string row number (ascii board)
+	#read integer row number
 	li $v0, 5
-	#la $a0, buffer
-	#li $a1, 20
 	syscall
 	move $s0, $v0
-	
 	
 	#prompt for column number
 	la $a0, col_prompt
 	li $v0, 4
 	syscall
 	
-	#read string column number (ascii board)
+	#read integer column number
 	li $v0, 5
-	#la $a0, buffer
-	#li $a1, 20
 	syscall
-	move $s1, $v0 #move to s0
+	move $s1, $v0 #move to s1
 	
-	
-	#PRINT FOR DEBUGGING
-	#la $a0, buffer  # reload byte space to primary address
-   	#move $a0, $s0   # primary address = t0 address (load pointer)
-    	#li $v0, 4       # print string
-    	#syscall
+	#check for invalid inputs
+	blt $s0, 0, invalid_input		#check if row < 0
+	bgt $s0, 14, invalid_input	#check if row > 14
+	blt $s1, 0, invalid_input		#check if col < 0
+	bgt $s1, 14, invalid_input	#check if col >14
     	
 	jr $ra
-	#li $v0, 10
-	#syscall
+
+invalid_input:
+	la $a0, error_message
+	li $v0, 4
+	syscall
+	
+	j make_move
