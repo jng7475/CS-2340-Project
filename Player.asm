@@ -1,19 +1,22 @@
 .data
-	row_prompt: .asciiz "Enter a row number (0-14): "
+	row_prompt: .asciiz "\nEnter a row number (0-14): "
 	col_prompt: .asciiz "\nEnter a column number (0-14): "
 	buffer: .space 20
 	error_message: .asciiz "Oops! You entered an invalid number. Please try again and enter a number from 0 to 14.\n"
+	
 .text
 .globl random_number
 random_number:
-	li $a1, 14  #max bound 15
-    	li $v0, 42  #generate random number.
+	# generate random row input
+	li $a1, 14  	#max bound 14
+    	li $v0, 42  	#generate random number.
     	syscall
     	
     	move $s0, $a0
     	
-    	li $a1, 14  #max bound 15
-    	li $v0, 42  #generate random number.
+    	# generate random column input
+    	li $a1, 14  	#max bound 14
+    	li $v0, 42  	#generate random number.
     	syscall
     	
     	move $s1, $a0
@@ -30,7 +33,7 @@ make_move:
 	#read integer row number
 	li $v0, 5
 	syscall
-	move $s0, $v0
+	move $s0, $v0	# move to s0
 	
 	#prompt for column number
 	la $a0, col_prompt
@@ -40,12 +43,12 @@ make_move:
 	#read integer column number
 	li $v0, 5
 	syscall
-	move $s1, $v0 #move to s1
+	move $s1, $v0 	# move to s1
 	
 	#check for invalid inputs
-	blt $s0, 0, invalid_input		#check if row < 0
+	blt $s0, 0, invalid_input	#check if row < 0
 	bgt $s0, 14, invalid_input	#check if row > 14
-	blt $s1, 0, invalid_input		#check if col < 0
+	blt $s1, 0, invalid_input	#check if col < 0
 	bgt $s1, 14, invalid_input	#check if col >14
     	
 	jr $ra
